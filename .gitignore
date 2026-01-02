@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.DS_Store
+
+# Node.js
+node_modules/
+.next/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+
+# Custom
+*.db
+*.sqlite3
+models/adapter_model/
+data/
+*.log
+npm-debug.log
