@@ -1,0 +1,409 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.199:3000
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 274ms
+ GET / 200 in 163ms (compile: 95ms, render: 69ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET /api/projects 200 in 103ms (compile: 71ms, render: 32ms)
+ GET /api/projects 200 in 7ms (compile: 1170µs, render: 6ms)
+ GET / 200 in 23ms (compile: 1498µs, render: 21ms)
+ GET /api/projects 200 in 16ms (compile: 4ms, render: 11ms)
+ GET / 200 in 24ms (compile: 2ms, render: 21ms)
+ GET /api/projects 200 in 13ms (compile: 3ms, render: 10ms)
+✓ Compiled in 195ms
+ GET /api/projects 200 in 18ms (compile: 8ms, render: 10ms)
+ GET /api/projects 200 in 8ms (compile: 4ms, render: 4ms)
+ GET /api/projects 200 in 25ms (compile: 12ms, render: 13ms)
+ GET / 200 in 98ms (compile: 26ms, render: 72ms)
+ GET /api/projects 200 in 12ms (compile: 3ms, render: 9ms)
+ POST /api/projects 200 in 10ms (compile: 1374µs, render: 8ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 70ms (compile: 63ms, render: 7ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 3ms (compile: 818µs, render: 3ms)
+ POST /api/lorebook 200 in 7ms (compile: 1367µs, render: 5ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 5ms (compile: 803µs, render: 4ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 7ms (compile: 2ms, render: 5ms)
+ POST /api/lorebook 200 in 23ms (compile: 9ms, render: 14ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 4ms (compile: 967µs, render: 3ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 5ms (compile: 1468µs, render: 4ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 12ms (compile: 4ms, render: 8ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 7ms (compile: 2ms, render: 5ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 12ms (compile: 3ms, render: 9ms)
+ POST /api/projects 200 in 14ms (compile: 4ms, render: 9ms)
+ GET /api/lorebook?projectId=003c82dc-e89f-46ec-b150-91f505a9f192 200 in 8ms (compile: 3ms, render: 5ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 10ms (compile: 3ms, render: 7ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 13ms (compile: 4ms, render: 9ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 4ms (compile: 1157µs, render: 2ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 3ms (compile: 999µs, render: 2ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 10ms (compile: 5ms, render: 5ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 3ms (compile: 933µs, render: 2ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 13ms (compile: 3ms, render: 9ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 15ms (compile: 5ms, render: 10ms)
+ GET /api/lorebook?projectId=a8498b96-1ca5-4fe7-ba27-6bbe12811220 200 in 6ms (compile: 1528µs, render: 5ms)
+✓ Compiled in 14ms
+✓ Compiled in 36ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 35ms
+⨯ ReferenceError: isCreateProjectOpen is not defined
+    at Home (app/page.tsx:281:15)
+  279 |       )}
+  280 |       <CreateProjectDialog
+> 281 |         open={isCreateProjectOpen}
+      |               ^
+  282 |         onClose={() => setIsCreateProjectOpen(false)}
+  283 |         onSuccess={handleProjectCreated}
+  284 |       /> {
+  digest: '4122006518'
+}
+ GET / 500 in 83ms (compile: 25ms, render: 58ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: handleProjectCreated is not defined
+    at Home (app/page.tsx:288:20)
+  286 |         open={isCreateProjectOpen}
+  287 |         onClose={() => setIsCreateProjectOpen(false)}
+> 288 |         onSuccess={handleProjectCreated}
+      |                    ^
+  289 |       />
+  290 |     </div>
+  291 |   ); {
+  digest: '3875911414'
+}
+✓ Compiled in 11ms
+ GET / 500 in 73ms (compile: 17ms, render: 56ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: handleProjectCreated is not defined
+    at Home (app/page.tsx:291:20)
+  289 |         open={isCreateProjectOpen}
+  290 |         onClose={() => setIsCreateProjectOpen(false)}
+> 291 |         onSuccess={handleProjectCreated}
+      |                    ^
+  292 |       />
+  293 |     </div>
+  294 |   ); {
+  digest: '3875911414'
+}
+✓ Compiled in 8ms
+ GET / 500 in 52ms (compile: 13ms, render: 39ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 9ms
+ GET / 200 in 70ms (compile: 13ms, render: 57ms)
+ GET /api/projects 200 in 4ms (compile: 1153µs, render: 3ms)
+✓ Compiled in 10ms
+ GET / 200 in 155ms (compile: 78ms, render: 78ms)
+ GET / 200 in 54ms (compile: 1456µs, render: 53ms)
+ GET / 404 in 347ms (compile: 243ms, render: 104ms)
+ GET / 200 in 84ms (compile: 17ms, render: 66ms)
+ GET / 200 in 16ms (compile: 10ms, render: 6ms)
+ GET / 200 in 103ms (compile: 24ms, render: 79ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET /api/projects 200 in 36ms (compile: 24ms, render: 12ms)
+ GET / 200 in 49ms (compile: 5ms, render: 44ms)
+ GET /api/projects 200 in 65ms (compile: 52ms, render: 14ms)
+ POST /api/projects 200 in 18ms (compile: 7ms, render: 11ms)
+ GET / 200 in 89ms (compile: 6ms, render: 82ms)
+ GET /api/projects 200 in 22ms (compile: 8ms, render: 14ms)
+ GET /api/projects 200 in 15ms (compile: 8ms, render: 7ms)
+✓ Compiled in 17ms
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET /api/projects/81a7e422-6200-4726-89d9-68183f39775e 200 in 581ms (compile: 571ms, render: 10ms)
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "81a7e422-6200-4726-89d9-68183f39775e"
+        },
+        data: {
+          content: "",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/81a7e422-6200-4726-89d9-68183f39775e 500 in 103ms (compile: 3ms, render: 100ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET / 200 in 90ms (compile: 30ms, render: 60ms)
+ GET /api/projects 200 in 6ms (compile: 1803µs, render: 4ms)
+ GET /api/projects/81a7e422-6200-4726-89d9-68183f39775e 200 in 85ms (compile: 13ms, render: 72ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "81a7e422-6200-4726-89d9-68183f39775e"
+        },
+        data: {
+          content: "",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/81a7e422-6200-4726-89d9-68183f39775e 500 in 83ms (compile: 7ms, render: 76ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ POST /api/projects 200 in 15ms (compile: 7ms, render: 8ms)
+ GET /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 200 in 16ms (compile: 7ms, render: 9ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "5619d240-70b7-416b-b472-5bb2371bafcf"
+        },
+        data: {
+          content: "",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 500 in 181ms (compile: 7ms, render: 173ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "5619d240-70b7-416b-b472-5bb2371bafcf"
+        },
+        data: {
+          content: "Chapter 1: The Beginning of Persistence",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 500 in 98ms (compile: 9ms, render: 89ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET / 200 in 70ms (compile: 6ms, render: 63ms)
+ GET /api/projects 200 in 6ms (compile: 2ms, render: 4ms)
+ GET /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 200 in 5ms (compile: 2ms, render: 3ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "5619d240-70b7-416b-b472-5bb2371bafcf"
+        },
+        data: {
+          content: "",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 500 in 75ms (compile: 4ms, render: 70ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "5619d240-70b7-416b-b472-5bb2371bafcf"
+        },
+        data: {
+          content: "Chapter 1: The Beginning of Persistence - Take 2",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 500 in 108ms (compile: 11ms, render: 98ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+ GET / 200 in 42ms (compile: 6ms, render: 36ms)
+ GET /api/projects 200 in 4ms (compile: 1096µs, render: 3ms)
+ GET /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 200 in 5ms (compile: 1966µs, render: 3ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db
+Error [PrismaClientValidationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update()` invocation in
+/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/.next/dev/server/chunks/[root-of-the-server]__c16b30c9._.js:129:168
+
+  126 const id = (await params).id;
+  127 const body = await request.json();
+  128 const { title, description, content } = body;
+→ 129 const updatedProject = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].project.update({
+        where: {
+          id: "5619d240-70b7-416b-b472-5bb2371bafcf"
+        },
+        data: {
+          content: "",
+          ~~~~~~~
+      ?   id?: String | StringFieldUpdateOperationsInput,
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   chapters?: ChapterUpdateManyWithoutProjectNestedInput,
+      ?   lorebook?: LorebookEntryUpdateManyWithoutProjectNestedInput,
+      ?   graphNodes?: GraphNodeUpdateManyWithoutProjectNestedInput,
+      ?   graphEdges?: GraphEdgeUpdateManyWithoutProjectNestedInput
+        }
+      })
+
+Unknown argument `content`. Available options are marked with ?.
+    at <unknown> (app/api/projects/[id]/route.ts:39:53)
+    at async PUT (app/api/projects/[id]/route.ts:39:32)
+  37 |         const { title, description, content } = body;
+  38 |
+> 39 |         const updatedProject = await prisma.project.update({
+     |                                                     ^
+  40 |             where: { id },
+  41 |             data: {
+  42 |                 ...(title && { title }), {
+  clientVersion: '7.2.0'
+}
+ PUT /api/projects/5619d240-70b7-416b-b472-5bb2371bafcf 500 in 64ms (compile: 5ms, render: 60ms)
+DB URL: file:/Users/maksim/.gemini/antigravity/scratch/ai-writer-agent/frontend/dev.db

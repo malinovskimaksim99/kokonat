@@ -17,9 +17,9 @@ build/
 .idea/
 
 # Custom
-*.db
-*.sqlite3
-models/adapter_model/
-data/
-*.log
-npm-debug.log
+# *.db
+# *.sqlite3
+# models/adapter_model/
+# data/
+# *.log
+# npm-debug.log
