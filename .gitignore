@@ -1,25 +1,28 @@
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 venv/
 .env
-.DS_Store
 
-# Node.js
+# AI Models & Data
+backend/models/
+backend/adapters/
+backend/training_data/
+*.safetensors
+*.bin
+
+# Node modules
 node_modules/
 .next/
-dist/
-build/
+out/
 
-# IDEs
-.vscode/
-.idea/
+# Database
+*.db
+*.sqlite
+frontend/dev.db
+frontend/prisma/dev.db
 
-# Custom
-# *.db
-# *.sqlite3
-# models/adapter_model/
-# data/
-# *.log
-# npm-debug.log
+# OS
+.DS_Store

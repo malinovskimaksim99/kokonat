@@ -47,8 +47,8 @@ export function LorebookList({ projectId, onAddClick, onAutoDiscoverClick }: { p
     if (loading && entries.length === 0) return <div className="text-sm text-neutral-500">Завантаження світу...</div>;
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
+        <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b border-white/5 bg-black/20 shrink-0">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-indigo-400" />
                     База Знань
@@ -63,7 +63,7 @@ export function LorebookList({ projectId, onAddClick, onAutoDiscoverClick }: { p
                 </div>
             </div>
 
-            <div className="grid gap-3">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
                 {entries.length === 0 && !loading && (
                     <div className="p-4 border border-dashed rounded-lg text-center text-neutral-500 text-sm">
                         Поки що порожньо. Додайте першого персонажа!
@@ -72,15 +72,15 @@ export function LorebookList({ projectId, onAddClick, onAutoDiscoverClick }: { p
                 {entries.map((entry) => (
                     <Card
                         key={entry.id}
-                        className="bg-neutral-900 border-neutral-800 cursor-pointer hover:border-indigo-500 transition-colors"
+                        className="bg-neutral-900 border-neutral-800 cursor-pointer hover:border-indigo-500 transition-colors shrink-0"
                         onClick={() => setEditingEntry(entry)}
                     >
                         <CardHeader className="p-3 pb-1 flex flex-row items-center space-y-0 gap-2">
-                            <div className="p-1.5 bg-neutral-800 rounded-full text-neutral-400">
+                            <div className="p-1.5 bg-neutral-800 rounded-full text-neutral-400 shrink-0">
                                 {getIcon(entry.type)}
                             </div>
-                            <div className="flex-1">
-                                <CardTitle className="text-sm font-medium leading-none">{entry.name}</CardTitle>
+                            <div className="flex-1 min-w-0">
+                                <CardTitle className="text-sm font-medium leading-none truncate">{entry.name}</CardTitle>
                                 <p className="text-xs text-neutral-500 mt-1">
                                     {(() => {
                                         switch (entry.type) {

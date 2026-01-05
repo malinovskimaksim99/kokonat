@@ -90,7 +90,7 @@ export function EditLorebookEntry({
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="bg-neutral-950 border-neutral-800 text-neutral-50 shadow-2xl">
+            <DialogContent className="bg-[#020617] border-slate-800 text-slate-50 shadow-2xl">
                 <DialogHeader className="flex flex-row items-center justify-between">
                     <DialogTitle>Редагувати: {name}</DialogTitle>
                     <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(true)} title="Видалити">

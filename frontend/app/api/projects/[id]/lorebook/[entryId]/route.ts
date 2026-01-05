@@ -3,15 +3,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function PUT(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    props: { params: Promise<{ id: string; entryId: string }> }
 ) {
     const params = await props.params;
-    const id = params.id;
+    const entryId = params.entryId; // Note: Next.js app router params matching file name
     const body = await request.json();
 
     try {
         const updatedEntry = await prisma.lorebookEntry.update({
-            where: { id },
+            where: { id: entryId },
             data: {
                 name: body.name,
                 type: body.type,
@@ -27,17 +27,16 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    props: { params: Promise<{ id: string; entryId: string }> }
 ) {
     const params = await props.params;
-    const id = params.id;
+    const entryId = params.entryId;
 
-    console.log("🔥 DELETE REQUEST RECEIVED");
-    console.log("✅ ID Resolved:", id);
+    console.log("🔥 DELETE ENTRY REQUEST:", entryId);
 
     try {
         await prisma.lorebookEntry.delete({
-            where: { id },
+            where: { id: entryId },
         });
         return NextResponse.json({ success: true });
     } catch (error) {

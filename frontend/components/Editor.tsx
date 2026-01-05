@@ -35,15 +35,15 @@ export default function Editor({ content, onChange, editable = true }: EditorPro
         },
     });
 
-    // Sync content from outside (e.g. initial load)
+    // Sync content from outside (e.g. initial load or chapter switch)
     useEffect(() => {
-        if (editor && content !== editor.getHTML()) {
-            // Only set content if it's different to prevent cursor jumping
-            // A naive check matches HTML strings. 
-            // For real-time sync this needs better diffing, but for "Load Project" it's okay.
-
-            // Check if content is just empty or simple text
-            if (editor.getText() === '' && content) {
+        if (editor && content !== undefined) {
+            // We need to compare to avoid loops, but if the ID changed upstream, content changed.
+            // A simple comparison of HTML is risky if Tiptap changes formatting.
+            // But for this use case (Switching chapters), we trust the prop.
+            const currentHTML = editor.getHTML();
+            if (content !== currentHTML) {
+                // Force update
                 editor.commands.setContent(content);
             }
         }

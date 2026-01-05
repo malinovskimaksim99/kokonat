@@ -4,72 +4,38 @@
 
 @layer base {
   :root {
-    /* Deep Indigo/Violet Theme (Dark Mode Default) */
-    --background: 222 47% 11%;
-    /* Slate 950 #0f172a */
-    --foreground: 210 40% 98%;
-    /* Slate 50 */
+    /* Deep Void Theme (Base) */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 217 33% 17%;
-    /* Slate 900 */
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 4.5%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 262 83% 58%;
-    /* Violet 600 - Magic Feel */
-    --primary-foreground: 210 40% 98%;
+    /* Malyna Primary (Pink/Rose) */
+    --primary: 330 81% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
-    /* Slate 900 for secondary elements */
-    --secondary-foreground: 210 40% 98%;
+    /* Magic Secondary (Indigo/Violet) */
+    --secondary: 265 89% 78%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 262 83% 58%;
-    /* Violet Accent */
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 262 83% 58%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 330 81% 60%;
 
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 262 83% 58%;
+    --radius: 0.75rem;
   }
 }
 
@@ -82,13 +48,63 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
+}
+
+/* --- ANIMATIONS & EFFECTS --- */
+
+/* Mesh Gradient Background */
+.bg-mesh {
+  background-color: #020617;
+  background-image:
+    radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+  background-size: 150% 150%;
+  animation: mesh-move 20s ease infinite;
+}
+
+@keyframes mesh-move {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+/* Opaque High-Contrast Panels (No Glass) */
+.glass-panel {
+  background-color: #020617;
+  /* Solid Dark Slate */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  /* Stronger shadow for depth since no blur */
+}
+
+.glass-header {
+  background-color: #020617;
+  /* Solid Header */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Typography Enhancements */
+.font-story {
+  font-family: var(--font-merriweather), serif;
+  line-height: 1.8;
+  letter-spacing: -0.01em;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -96,33 +112,16 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #334155;
-  /* slate-700 */
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #475569;
-  /* slate-600 */
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Glass Effect Utility */
-.glass {
-  background-color: rgba(15, 23, 42, 0.7);
-  /* slate-900/70 */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Gradient Text */
-.text-gradient {
-  background: linear-gradient(to right, #a78bfa, #818cf8);
-  /* violet-400 to indigo-400 */
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* Utilities */
+.text-glow {
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
+  /* Pink Glow */
 }

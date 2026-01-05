@@ -20,6 +20,24 @@ export async function GET(
             return NextResponse.json({ error: 'Project not found' }, { status: 404 });
         }
 
+        // MIGRATION: If project has content but no chapters, create Chapter 1
+        if (project.chapters.length === 0 && project.content) {
+            console.log(`Migrating content for project ${id} to Chapter 1...`);
+            const newChapter = await prisma.chapter.create({
+                data: {
+                    title: "Розділ 1",
+                    content: project.content,
+                    order: 1,
+                    projectId: id
+                }
+            });
+            // Return modified project structure in memory without refetching
+            return NextResponse.json({
+                ...project,
+                chapters: [newChapter]
+            });
+        }
+
         return NextResponse.json(project);
     } catch (error) {
         console.error(error);
@@ -34,14 +52,15 @@ export async function PUT(
     try {
         const id = (await params).id;
         const body = await request.json();
-        const { title, description, content } = body;
+        const { title, description, content, worldBible } = body;
 
         const updatedProject = await prisma.project.update({
             where: { id },
             data: {
                 ...(title && { title }),
-                ...(description !== undefined && { description }), // allow empty string
+                ...(description !== undefined && { description }),
                 ...(content !== undefined && { content }),
+                ...(worldBible !== undefined && { worldBible }),
             },
         });
 

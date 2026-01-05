@@ -26,7 +26,6 @@ model Project {
   graphNodes  GraphNode[]
   graphEdges  GraphEdge[]
   messages    Message[]
-  ideas       Idea[]
 }
 
 // 💬 CHAT HISTORY
@@ -87,17 +86,4 @@ model GraphEdge {
   
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-}
-
-// 💡 FUTURE IDEAS LOG
-model Idea {
-  id          String   @id @default(uuid())
-  content     String
-  isCompleted Boolean  @default(false)
-  
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }

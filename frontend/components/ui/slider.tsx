@@ -17,8 +17,14 @@ const Slider = React.forwardRef<
         )}
         {...props}
     >
-        <SliderPrimitive.Thumb className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-pink-500 bg-white shadow-lg shadow-pink-500/30 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-110 transition-transform cursor-pointer">
-            <RaspberryIcon className="h-5 w-5 text-pink-600" />
+        {/* Track: 8px height (h-2) */}
+        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-200 border border-slate-300 cursor-pointer shadow-inner">
+            <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-pink-400 via-fuchsia-500 to-indigo-500" />
+        </SliderPrimitive.Track>
+
+        {/* Thumb: 8px (h-2 w-2) - Tiny Raspberry - STRICT CONSTRAINTS */}
+        <SliderPrimitive.Thumb className="flex !h-2 !w-2 shrink-0 items-center justify-center rounded-full bg-transparent shadow-none ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-125 active:scale-110 cursor-grab drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+            <RaspberryIcon className="h-full w-full object-contain filter hover:brightness-110 transition-all" />
         </SliderPrimitive.Thumb>
     </SliderPrimitive.Root>
 ))
