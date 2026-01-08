@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 interface Chapter {
     id: string;
     title: string;
+    pov?: string;
 }
 
 interface ChapterTabsProps {
@@ -13,6 +14,7 @@ interface ChapterTabsProps {
     onSelect: (id: string) => void;
     onAdd: () => void;
     onRename: (id: string, newTitle: string) => void;
+    onUpdatePOV: (id: string, newPOV: string) => void;
     onDelete: (id: string) => void;
 }
 
@@ -22,6 +24,7 @@ export function ChapterTabs({
     onSelect,
     onAdd,
     onRename,
+    onUpdatePOV,
     onDelete
 }: ChapterTabsProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -64,33 +67,52 @@ export function ChapterTabs({
                         onClick={() => onSelect(chapter.id)}
                         onDoubleClick={() => startEditing(chapter)}
                         className={cn(
-                            "group relative flex items-center px-4 h-8 rounded-t-lg text-xs font-medium cursor-pointer transition-all min-w-[100px] max-w-[200px] select-none border-t border-x border-transparent",
+                            "group relative flex flex-col justify-center px-4 h-full rounded-t-lg transition-all min-w-[120px] max-w-[200px] select-none border-t border-x border-transparent pb-1",
                             activeChapterId === chapter.id
                                 ? "bg-[#020617] text-indigo-300 border-white/10 border-b-[#020617] translate-y-[1px] z-10"
                                 : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border-b-white/5"
                         )}
                     >
                         {editingId === chapter.id ? (
-                            <input
-                                autoFocus
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onBlur={saveEdit}
-                                onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                                className="bg-transparent border-none outline-none w-full text-indigo-300"
-                            />
+                            <div className="flex flex-col gap-1 w-full bg-slate-900/50 p-1 rounded">
+                                <input
+                                    autoFocus
+                                    value={editValue}
+                                    placeholder="Назва розділу"
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    // Save title on blur? No, rely on Enter or saving both?
+                                    // Let's rely on Enter or Explicit Action. 
+                                    // Removing onBlur to prevent closing when clicking second input.
+                                    onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                                    className="bg-transparent border-none outline-none w-full text-indigo-300 text-xs font-bold text-center placeholder:text-indigo-700/50"
+                                />
+                                <input
+                                    value={chapter.pov || ""}
+                                    placeholder="POV (Хто?)"
+                                    onChange={(e) => onUpdatePOV(chapter.id, e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-transparent border-t border-indigo-900/30 outline-none w-full text-[10px] text-slate-400 text-center uppercase font-mono tracking-widest placeholder:text-slate-700"
+                                />
+                            </div>
                         ) : (
-                            <span className="truncate w-full text-center">{chapter.title}</span>
+                            <div className="flex flex-col items-center w-full">
+                                <span className="truncate w-full text-center text-xs font-bold leading-tight">{chapter.title}</span>
+                                {chapter.pov && (
+                                    <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono mt-0.5">
+                                        👁 {chapter.pov}
+                                    </span>
+                                )}
+                            </div>
                         )}
 
                         {activeChapterId === chapter.id && !editingId && (
-                            <div className="absolute right-1 opacity-100 transition-opacity flex items-center">
+                            <div className="absolute right-0 top-0 h-full flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity pr-1">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onDelete(chapter.id);
                                     }}
-                                    className="p-0.5 hover:bg-red-500/20 hover:text-red-400 rounded-md transition-colors"
+                                    className="p-1 hover:bg-red-500/20 hover:text-red-400 rounded-md transition-colors"
                                     title="Видалити розділ"
                                 >
                                     <X className="w-3 h-3" />

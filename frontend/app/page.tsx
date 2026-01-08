@@ -6,7 +6,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { useState, useRef, useEffect } from "react";
-import { Bot, Network, FileText, Send, Layers, Trash2, Square, Sparkles, Lightbulb, CheckCircle2, Circle, Pencil, Check, X, Settings, Plus, Search, Book } from "lucide-react";
+import { Bot, Network, FileText, Send, Layers, Trash2, Square, Sparkles, Lightbulb, CheckCircle2, Circle, Pencil, Check, X, Settings, Plus, Search, Book, ShieldAlert } from "lucide-react";
 import ParsedMessage from '../components/ParsedMessage';
 import PlotGraph from "@/components/PlotGraph";
 import Editor from "@/components/Editor";
@@ -140,6 +140,56 @@ export default function Home() {
       alert("Помилка аналізу світу: " + String(e));
     } finally {
       setIsUpdatingWorld(false);
+    }
+  };
+
+  // Consistency Check State
+  const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
+  const [consistencyIssues, setConsistencyIssues] = useState<any[] | null>(null);
+
+  const handleCheckConsistency = async () => {
+    if (!editorContent.trim() || !projectId) return;
+    setIsCheckingConsistency(true);
+    setConsistencyIssues(null);
+    try {
+      // 1. Get Graph Context (Simpler version than Chat)
+      let graphContext = "";
+      try {
+        const graphRes = await fetch(`/api/projects/${projectId}/graph`);
+        if (graphRes.ok) {
+          const graphJson = await graphRes.json();
+          if (graphJson.nodes) {
+            // Take last 20 nodes for immediate consistency context
+            const recent = graphJson.nodes
+              .sort((a: any, b: any) => a.positionX - b.positionX)
+              .slice(-20)
+              .map((n: any) => n.data ? JSON.parse(n.data).label : "")
+              .join(" -> ");
+            graphContext = recent;
+          }
+        }
+      } catch (e) { console.error("Graph fetch failed", e); }
+
+      // 2. Call API
+      const res = await fetch('/api/analyze-consistency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapter_text: editorContent,
+          lorebook_context: worldBibleContent, // Sending full bible for now
+          graph_context: graphContext
+        })
+      });
+      const data = await res.json();
+      if (data.json_str) {
+        const parsed = JSON.parse(data.json_str);
+        setConsistencyIssues(parsed.issues || []);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Помилка перевірки цілісності");
+    } finally {
+      setIsCheckingConsistency(false);
     }
   };
 
@@ -454,6 +504,21 @@ export default function Home() {
     setProjectId(newProject.id);
   };
 
+  const handleChapterPOV = async (id: string, newPOV: string) => {
+    // Optimistic Update
+    setChapters(prev => prev.map(c => c.id === id ? { ...c, pov: newPOV } : c));
+    try {
+      await fetch(`/api/projects/${projectId}/chapters/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pov: newPOV })
+      });
+    } catch (e) {
+      console.error("Failed to update POV", e);
+    }
+  };
+
+
   const handleAutoLoreAdd = async (entry: { name: string; type: string; description: string }) => {
     if (!projectId) return;
     try {
@@ -544,20 +609,86 @@ export default function Home() {
           const graphJson = await graphRes.json();
           if (graphJson.nodes && Array.isArray(graphJson.nodes) && graphJson.nodes.length > 0) {
             // Sort by X position (chronological)
-            const sortedNodes = graphJson.nodes.sort((a: any, b: any) => a.positionX - b.positionX);
+            const allNodes = graphJson.nodes.sort((a: any, b: any) => a.positionX - b.positionX);
 
-            // Format text summary (Limit to last 50 events to prevent context overflow)
-            const recentNodes = sortedNodes.slice(-50);
+            // --- 🧠 SMART CONTEXT ARCHITECTURE ---
 
-            graphContextPayload = recentNodes.map((n: any) => {
+            // 1. Layer A: Golden Fund (Strategic Memory)
+            // Importance 4 (Major Twist) and 5 (Climax) are kept FOREVER.
+            const goldenNodes = allNodes.filter((n: any) => {
               try {
                 const d = JSON.parse(n.data);
-                return `- [${d.thread || "General"}] ${d.label}: ${d.details}`;
+                return (d.importance || 1) >= 4;
+              } catch { return false; }
+            });
+
+            // 2. Layer B: Recent History (Tactical Memory)
+            // Keep last 50 events for immediate context consistency.
+            const recentNodes = allNodes.slice(-50);
+
+            // 3. Layer C: Thread Awareness (Thematic Memory)
+            // For EVERY thread (Active or Closed), keep its "Key Moments" and "Current State".
+            const threadMap = new Map();
+
+            // Group by thread
+            allNodes.forEach((n: any) => {
+              try {
+                const d = JSON.parse(n.data);
+                const t = d.thread || "Other";
+                if (!threadMap.has(t)) threadMap.set(t, []);
+                threadMap.get(t).push(n);
+              } catch { }
+            });
+
+            const threadNodes: any[] = [];
+            threadMap.forEach((nodes, threadName) => {
+              // Sort by importance (descending)
+              const byImportance = [...nodes].sort((a, b) => {
+                const impA = JSON.parse(a.data).importance || 1;
+                const impB = JSON.parse(b.data).importance || 1;
+                return impB - impA;
+              });
+
+              // Sort by time (descending)
+              const byTime = [...nodes].sort((a, b) => b.positionX - a.positionX);
+
+              // Select Strategy:
+              // 1. Top 2 most important events of this thread (The "Skeleton")
+              const keyEvents = byImportance.slice(0, 2);
+
+              // 2. The most recent event (The "Head")
+              const latestEvent = byTime.slice(0, 1);
+
+              threadNodes.push(...keyEvents, ...latestEvent);
+            });
+
+            // Combine Layer A, B, and C & Deduplicate
+            const memorySet = new Set();
+
+            // Helper to add nodes
+            const addUnique = (list: any[]) => list.forEach(n => memorySet.add(JSON.stringify(n)));
+
+            addUnique(goldenNodes); // Layer A (Global High Importance)
+            addUnique(recentNodes); // Layer B (Global Recent Context)
+            addUnique(threadNodes); // Layer C (Per-Thread Context)
+
+            // Decode back to objects and sort
+            const finalMemoryNodes = Array.from(memorySet)
+              .map((s: any) => JSON.parse(s))
+              .sort((a: any, b: any) => a.positionX - b.positionX);
+
+            // Format text summary
+            graphContextPayload = finalMemoryNodes.map((n: any) => {
+              try {
+                const d = JSON.parse(n.data);
+                const impMarker = (d.importance || 1) >= 4 ? "★ " : "";
+                return `- ${impMarker}[${d.thread || "General"}] ${d.label}: ${d.details}`;
               } catch { return ""; }
             }).filter((s: string) => s).join("\n");
 
-            if (sortedNodes.length > 50) {
-              graphContextPayload = `... (Previous ${sortedNodes.length - 50} events omitted)...\n` + graphContextPayload;
+            // Add a meta-header (Updated Strategy)
+            if (finalMemoryNodes.length > 0) {
+              graphContextPayload = `(Context Strategy: Golden Fund + Recent 50 + Thread Deep Dive [Key + Latest])\n` + graphContextPayload;
             }
           }
         }
@@ -779,6 +910,7 @@ export default function Home() {
                       onSelect={handleChapterSelect}
                       onAdd={() => handleChapterAdd()}
                       onRename={handleChapterRename}
+                      onUpdatePOV={handleChapterPOV}
                       onDelete={handleChapterDelete}
                     />
                   </div>
@@ -787,7 +919,20 @@ export default function Home() {
                 <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 custom-scrollbar">
                   {/* Analysis Button Bar */}
                   {activeChapterId && (
-                    <div className="max-w-4xl mx-auto mb-4 flex justify-end">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleCheckConsistency}
+                        disabled={isCheckingConsistency}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-lg text-xs font-bold border border-amber-500/20 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isCheckingConsistency ? (
+                          <ShieldAlert className="w-3.5 h-3.5 animate-pulse" />
+                        ) : (
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                        )}
+                        {isCheckingConsistency ? "ПЕРЕВІРКА..." : "ПЕРЕВІРКА ЛОГІКИ"}
+                      </button>
+
                       <button
                         onClick={handleAnalyzeChapter}
                         disabled={isAnalyzing}
@@ -800,7 +945,8 @@ export default function Home() {
                         )}
                         {isAnalyzing ? "АНАЛІЗУЮ..." : "АНАЛІЗ РОЗДІЛУ"}
                       </button >
-                    </div >
+                    </div>
+
                   )}
 
                   <div className="max-w-4xl mx-auto min-h-full bg-card/10 backdrop-blur-sm border border-white/5 rounded-2xl shadow-xl p-8 md:p-12 relative">
@@ -821,8 +967,8 @@ export default function Home() {
                       }}
                     />
                   </div>
-                </div >
-              </ResizablePanel >
+                </div>
+              </ResizablePanel>
 
               <ResizableHandle className="bg-white/5 h-[1px] hover:bg-pink-500/50 transition-colors" />
 
@@ -904,8 +1050,8 @@ export default function Home() {
                 </div>
               </ResizablePanel>
 
-            </ResizablePanelGroup >
-          </ResizablePanel >
+            </ResizablePanelGroup>
+          </ResizablePanel>
 
           {/* Right Panel: Lore/Graph */}
           {
@@ -1016,252 +1162,306 @@ export default function Home() {
             )
           }
 
-        </ResizablePanelGroup >
-      </main >
+        </ResizablePanelGroup>
+      </main>
 
       {/* Modals */}
+      <div>
+        <CreateProjectDialog
+          open={isCreateProjectOpen}
+          onClose={() => setIsCreateProjectOpen(false)}
+          onSuccess={handleProjectCreated}
+        />
 
-      <CreateProjectDialog
-        open={isCreateProjectOpen}
-        onClose={() => setIsCreateProjectOpen(false)}
-        onSuccess={handleProjectCreated}
-      />
 
 
-
-      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="bg-[#020617] border border-white/10 text-slate-50 sm:rounded-2xl shadow-2xl z-[100] max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-indigo-400">Налаштування ШІ</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 space-y-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs font-medium">
-                <Label className="text-slate-200 text-sm">Креативність (Температура)</Label>
-                <span className="px-2 py-0.5 rounded bg-[#1e1b4b] text-indigo-300 font-mono text-xs border border-indigo-500/30 shadow-sm">{temperature}</span>
-              </div>
-              <Slider
-                value={[temperature]}
-                min={0.1}
-                max={1.5}
-                step={0.1}
-                onValueChange={(vals) => setTemperature(vals[0])}
-                className="py-2"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 px-1 font-medium tracking-wide">
-                <span>Точна</span>
-                <span>Збалансована</span>
-                <span>Творча</span>
-              </div>
-              <div className="p-3 rounded-lg bg-[#0f172a] border border-white/5 mt-2 transition-all duration-300">
-                <span className="text-pink-400 font-bold block mb-1 text-[10px] uppercase tracking-wider">Що це змінює?</span>
-                <p className="text-xs text-slate-300 leading-relaxed min-h-[30px]">
-                  {temperature < 0.5 && "✨ Логіка та точність. ШІ буде дотримуватися фактів і писати сухо."}
-                  {temperature >= 0.5 && temperature < 1.0 && "⚖️ Баланс. Ідеально для більшості художніх текстів."}
-                  {temperature >= 1.0 && "🔥 Хаос та Креатив. ШІ може вигадувати божевільні ідеї, але менш стабільний."}
-                </p>
+        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+          <DialogContent className="bg-[#020617] border border-white/10 text-slate-50 sm:rounded-2xl shadow-2xl z-[100] max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-indigo-400">Налаштування ШІ</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-6">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-xs font-medium">
+                  <Label className="text-slate-200 text-sm">Креативність (Температура)</Label>
+                  <span className="px-2 py-0.5 rounded bg-[#1e1b4b] text-indigo-300 font-mono text-xs border border-indigo-500/30 shadow-sm">{temperature}</span>
+                </div>
+                <Slider
+                  value={[temperature]}
+                  min={0.1}
+                  max={1.5}
+                  step={0.1}
+                  onValueChange={(vals) => setTemperature(vals[0])}
+                  className="py-2"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 px-1 font-medium tracking-wide">
+                  <span>Точна</span>
+                  <span>Збалансована</span>
+                  <span>Творча</span>
+                </div>
+                <div className="p-3 rounded-lg bg-[#0f172a] border border-white/5 mt-2 transition-all duration-300">
+                  <span className="text-pink-400 font-bold block mb-1 text-[10px] uppercase tracking-wider">Що це змінює?</span>
+                  <p className="text-xs text-slate-300 leading-relaxed min-h-[30px]">
+                    {temperature < 0.5 && "✨ Логіка та точність. ШІ буде дотримуватися фактів і писати сухо."}
+                    {temperature >= 0.5 && temperature < 1.0 && "⚖️ Баланс. Ідеально для більшості художніх текстів."}
+                    {temperature >= 1.0 && "🔥 Хаос та Креатив. ШІ може вигадувати божевільні ідеї, але менш стабільний."}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
 
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent className="bg-[#020617] border-red-500/20 text-slate-50">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-400 text-xl font-bold">
-              {deleteTarget?.type === 'project' && `Видалити проект: ${deleteTarget.name}?`}
-              {deleteTarget?.type === 'chapter' && "Видалити цей розділ?"}
-              {deleteTarget?.type === 'idea' && "Видалити цю ідею?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
-              {deleteTarget?.type === 'project' && "Ця дія незворотна. Весь вміст проекту та історія буде втрачено назавжди."}
-              {deleteTarget?.type === 'chapter' && "Розділ та його вміст буде видалено назавжди."}
-              {deleteTarget?.type === 'idea' && "Ця ідея буде видалена зі списку."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-white/10 hover:bg-white/10 text-slate-300">Скасувати</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white border border-red-500/30 shadow-[0_0_20px_rgba(220,38,38,0.4)]"
-              onClick={() => {
-                if (!deleteTarget) return;
-                if (deleteTarget.type === 'project') deleteProject(deleteTarget.id);
-                if (deleteTarget.type === 'chapter') executeDeleteChapter(deleteTarget.id);
-                if (deleteTarget.type === 'idea') executeDeleteIdea(deleteTarget.id);
-                setDeleteTarget(null);
-              }}
-            >
-              Видалити
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Consistency Checker Results */}
+        <Dialog open={!!consistencyIssues} onOpenChange={(open) => !open && setConsistencyIssues(null)}>
+          <DialogContent className="bg-[#0f172a] border border-amber-500/20 text-slate-100 max-w-2xl shadow-[0_0_50px_rgba(245,158,11,0.1)]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold flex items-center gap-2 text-amber-400">
+                <ShieldAlert className="w-5 h-5 text-amber-400" />
+                Звіт Цілісності
+              </DialogTitle>
+            </DialogHeader>
 
-      {/* Analysis Result Modal */}
-      <Dialog open={!!analysisResult} onOpenChange={(open) => !open && setAnalysisResult(null)}>
-        <DialogContent className="bg-[#0f172a] border border-indigo-500/20 text-slate-100 max-w-2xl shadow-[0_0_50px_rgba(79,70,229,0.1)]">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-indigo-400">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
-              Аналіз Розділу
-            </DialogTitle>
-          </DialogHeader>
+            <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+              {consistencyIssues && consistencyIssues.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
+                  <h3 className="text-lg font-bold text-green-400">Все Чисто!</h3>
+                  <p className="text-slate-400 text-sm">ШІ не знайшов жодних протиріч у цьому розділі.</p>
+                </div>
+              )}
 
-          {analysisResult && (
-            <div className="space-y-6 py-2">
-              {/* Mood Badge */}
-              <div className="flex justify-end">
-                <span className="px-3 py-1 rounded-full bg-indigo-950/50 text-indigo-200 text-xs font-mono border border-indigo-500/20 uppercase tracking-widest">
-                  Настрій: {analysisResult.mood}
-                </span>
-              </div>
+              {consistencyIssues?.map((issue: any, i: number) => (
+                <div key={i} className={`p-4 rounded-xl border border-white/5 ${issue.severity === 'CRITICAL' ? 'bg-red-900/20 border-red-500/30' :
+                  issue.severity === 'WARNING' ? 'bg-amber-900/20 border-amber-500/30' :
+                    'bg-slate-800/50'
+                  }`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${issue.severity === 'CRITICAL' ? 'bg-red-500 text-white' :
+                      issue.severity === 'WARNING' ? 'bg-amber-500 text-black' :
+                        'bg-slate-600 text-white'
+                      }`}>
+                      {issue.severity}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-200 font-medium mb-2">{issue.description}</p>
+                  {issue.quote && (
+                    <div className="text-xs text-slate-400 italic border-l-2 border-white/10 pl-3 py-1">
+                      "{issue.quote}"
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-              {/* Summary */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Короткий Зміст</h4>
-                <p className="text-sm leading-relaxed text-slate-200 bg-black/20 p-4 rounded-xl border border-white/5 font-serif italic">
-                  {analysisResult.summary}
-                </p>
-              </div>
+            <div className="pt-4 border-t border-white/10 flex justify-end">
+              <button
+                onClick={() => setConsistencyIssues(null)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Зрозуміло
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
-              {/* Key Events */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Ключові Події</h4>
-                <ul className="space-y-2">
-                  {analysisResult.events.map((event, i) => (
-                    <li key={i} className="flex gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-lg border border-white/5">
-                      <span className="font-mono text-indigo-400 font-bold opacity-50">0{i + 1}</span>
-                      <span>{event}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+          <AlertDialogContent className="bg-[#020617] border-red-500/20 text-slate-50">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-red-400 text-xl font-bold">
+                {deleteTarget?.type === 'project' && `Видалити проект: ${deleteTarget?.name}?`}
+                {deleteTarget?.type === 'chapter' && "Видалити цей розділ?"}
+                {deleteTarget?.type === 'idea' && "Видалити цю ідею?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-300">
+                {deleteTarget?.type === 'project' && "Ця дія незворотна. Весь вміст проекту та історія буде втрачено назавжди."}
+                {deleteTarget?.type === 'chapter' && "Розділ та його вміст буде видалено назавжди."}
+                {deleteTarget?.type === 'idea' && "Ця ідея буде видалена зі списку."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-transparent border-white/10 hover:bg-white/10 text-slate-300">Скасувати</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white border border-red-500/30 shadow-[0_0_20px_rgba(220,38,38,0.4)]"
+                onClick={() => {
+                  if (!deleteTarget) return;
+                  if (deleteTarget.type === 'project') deleteProject(deleteTarget.id);
+                  if (deleteTarget.type === 'chapter') executeDeleteChapter(deleteTarget.id);
+                  if (deleteTarget.type === 'idea') executeDeleteIdea(deleteTarget.id);
+                  setDeleteTarget(null);
+                }}
+              >
+                Видалити
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-              {/* World Update Section */}
-              <div className="pt-4 border-t border-white/10 mt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
-                    <Book className="w-4 h-4" /> Оновлення Світу
-                  </h4>
+        {/* Analysis Result Modal */}
+        <Dialog open={!!analysisResult} onOpenChange={(open) => !open && setAnalysisResult(null)}>
+          <DialogContent className="bg-[#0f172a] border border-indigo-500/20 text-slate-100 max-w-2xl shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold flex items-center gap-2 text-indigo-400">
+                <Sparkles className="w-5 h-5 text-indigo-400" />
+                Аналіз Розділу
+              </DialogTitle>
+            </DialogHeader>
+
+            {analysisResult && (
+              <div className="space-y-6 py-2">
+                {/* Mood Badge */}
+                <div className="flex justify-end">
+                  <span className="px-3 py-1 rounded-full bg-indigo-950/50 text-indigo-200 text-xs font-mono border border-indigo-500/20 uppercase tracking-widest">
+                    Настрій: {analysisResult?.mood}
+                  </span>
+                </div>
+
+                {/* Summary */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Короткий Зміст</h4>
+                  <p className="text-sm leading-relaxed text-slate-200 bg-black/20 p-4 rounded-xl border border-white/5 font-serif italic">
+                    {analysisResult?.summary}
+                  </p>
+                </div>
+
+                {/* Key Events */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Ключові Події</h4>
+                  <ul className="space-y-2">
+                    {analysisResult?.events?.map((event, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-lg border border-white/5">
+                        <span className="font-mono text-indigo-400 font-bold opacity-50">0{i + 1}</span>
+                        <span>{event}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* World Update Section */}
+                <div className="pt-4 border-t border-white/10 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+                      <Book className="w-4 h-4" /> Оновлення Світу
+                    </h4>
+                    {!isUpdatingWorld && worldUpdates.length === 0 && (
+                      <button
+                        onClick={handleAnalyzeWorld}
+                        className="bg-amber-600/20 hover:bg-amber-600/40 text-amber-200 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 transition-all"
+                      >
+                        ✨ Шукати нові факти
+                      </button>
+                    )}
+                  </div>
+
+                  {isUpdatingWorld && (
+                    <div className="text-center py-4 text-slate-400 text-sm animate-pulse">
+                      🔍 Агент читає текст і шукає нові факти...
+                    </div>
+                  )}
+
+                  {worldUpdates.length > 0 && (
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                      {worldUpdates.map((section, idx) => (
+                        <div key={idx} className="bg-black/30 rounded-lg p-3 border border-amber-500/10">
+                          <h5 className="text-xs font-bold text-amber-500 mb-2 uppercase">{section.section}</h5>
+                          <ul className="space-y-2">
+                            {section.facts.map((fact: any, fIdx: number) => {
+                              const isApplied = appliedUpdates.has(fact);
+                              return (
+                                <li key={fIdx} className="flex justify-between items-start gap-2 text-sm text-slate-300">
+                                  <span className="leading-tight pt-0.5">{fact}</span>
+                                  <button
+                                    onClick={() => handleApplyWorldUpdate(section.section, fact)}
+                                    disabled={isApplied}
+                                    className={`shrink-0 p-1 rounded transition-colors ${isApplied ? 'text-green-500 bg-green-500/10' : 'text-slate-500 hover:text-amber-400 hover:bg-amber-900/20'}`}
+                                    title={isApplied ? "Додано" : "Додати в Сюжет"}
+                                  >
+                                    {isApplied ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {!isUpdatingWorld && worldUpdates.length === 0 && (
-                    <button
-                      onClick={handleAnalyzeWorld}
-                      className="bg-amber-600/20 hover:bg-amber-600/40 text-amber-200 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 transition-all"
-                    >
-                      ✨ Шукати нові факти
-                    </button>
+                    <p className="text-xs text-slate-500 italic">Натисніть кнопку вище, щоб перевірити, чи є в цьому розділі нові факти для Енциклопедії Світу.</p>
                   )}
                 </div>
 
-                {isUpdatingWorld && (
-                  <div className="text-center py-4 text-slate-400 text-sm animate-pulse">
-                    🔍 Агент читає текст і шукає нові факти...
-                  </div>
-                )}
-
-                {worldUpdates.length > 0 && (
-                  <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                    {worldUpdates.map((section, idx) => (
-                      <div key={idx} className="bg-black/30 rounded-lg p-3 border border-amber-500/10">
-                        <h5 className="text-xs font-bold text-amber-500 mb-2 uppercase">{section.section}</h5>
-                        <ul className="space-y-2">
-                          {section.facts.map((fact: any, fIdx: number) => {
-                            const isApplied = appliedUpdates.has(fact);
-                            return (
-                              <li key={fIdx} className="flex justify-between items-start gap-2 text-sm text-slate-300">
-                                <span className="leading-tight pt-0.5">{fact}</span>
-                                <button
-                                  onClick={() => handleApplyWorldUpdate(section.section, fact)}
-                                  disabled={isApplied}
-                                  className={`shrink-0 p-1 rounded transition-colors ${isApplied ? 'text-green-500 bg-green-500/10' : 'text-slate-500 hover:text-amber-400 hover:bg-amber-900/20'}`}
-                                  title={isApplied ? "Додано" : "Додати в Сюжет"}
-                                >
-                                  {isApplied ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                                </button>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {!isUpdatingWorld && worldUpdates.length === 0 && (
-                  <p className="text-xs text-slate-500 italic">Натисніть кнопку вище, щоб перевірити, чи є в цьому розділі нові факти для Енциклопедії Світу.</p>
-                )}
+                <div className="pt-4 border-t border-white/10 flex justify-end">
+                  <button
+                    onClick={() => setAnalysisResult(null)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Закрити
+                  </button>
+                </div>
               </div>
+            )}
+          </DialogContent>
+        </Dialog>
+        {/* Help Dialog */}
+        <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+          <DialogContent className="bg-[#0f172a] border border-white/10 text-slate-100 max-w-3xl h-[80vh] flex flex-col p-0 overflow-hidden shadow-2xl">
+            <DialogHeader className="p-6 border-b border-white/5 shrink-0 bg-white/5">
+              <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                📚 Посібник Користувача
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
-                <button
-                  onClick={() => setAnalysisResult(null)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  Закрити
-                </button>
-              </div>
+              <section>
+                <h3 className="text-lg font-bold text-indigo-400 mb-2 flex items-center gap-2">
+                  <FileText className="w-5 h-5" /> 1. Редактор та Розділи
+                </h3>
+                <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                  <li>Створюйте нові розділи кнопкою <strong>+</strong> у верхній панелі.</li>
+                  <li>Подвійний клік по назві розділу дозволяє його <strong>перейменувати</strong>.</li>
+                  <li>Текст зберігається автомтично (Autosave).</li>
+                  <li>Використовуйте кнопку <strong>✨ Аналіз Розділу</strong>, щоб отримати короткий зміст та список подій від ШІ.</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-pink-400 mb-2 flex items-center gap-2">
+                  <Bot className="w-5 h-5" /> 2. ШІ Чат та Пам'ять
+                </h3>
+                <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                  <li>Спілкуйтеся з ШІ про сюжет. Він пам'ятає останні <strong>70 повідомлень</strong>.</li>
+                  <li>Ви можете <strong>редагувати</strong> повідомлення ШІ (олівець при наведенні), якщо він помилився.</li>
+                  <li>Текст історії в чаті виділяється <em>курсивом</em>.</li>
+                  <li>Натисніть <strong>+</strong> біля повідомлення, щоб вставити його прямо в редактор.</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-amber-400 mb-2 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5" /> 3. Банк Ідей
+                </h3>
+                <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                  <li>Натисніть 💡 вгорі, щоб відкрити панель ідей.</li>
+                  <li>Записуйте швидкі думки, плани або To-Do.</li>
+                  <li>Можна відмічати виконані та редагувати текст (подвійний клік).</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                  <Network className="w-5 h-5" /> 4. Граф Сюжету
+                </h3>
+                <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                  <li>Візуалізація зв'язків між персонажами та локаціями.</li>
+                  <li>Автоматично будується на основі аналізу тексту (в розробці).</li>
+                </ul>
+              </section>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-      {/* Help Dialog */}
-      <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-        <DialogContent className="bg-[#0f172a] border border-white/10 text-slate-100 max-w-3xl h-[80vh] flex flex-col p-0 overflow-hidden shadow-2xl">
-          <DialogHeader className="p-6 border-b border-white/5 shrink-0 bg-white/5">
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              📚 Посібник Користувача
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-
-            <section>
-              <h3 className="text-lg font-bold text-indigo-400 mb-2 flex items-center gap-2">
-                <FileText className="w-5 h-5" /> 1. Редактор та Розділи
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
-                <li>Створюйте нові розділи кнопкою <strong>+</strong> у верхній панелі.</li>
-                <li>Подвійний клік по назві розділу дозволяє його <strong>перейменувати</strong>.</li>
-                <li>Текст зберігається автомтично (Autosave).</li>
-                <li>Використовуйте кнопку <strong>✨ Аналіз Розділу</strong>, щоб отримати короткий зміст та список подій від ШІ.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h3 className="text-lg font-bold text-pink-400 mb-2 flex items-center gap-2">
-                <Bot className="w-5 h-5" /> 2. ШІ Чат та Пам'ять
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
-                <li>Спілкуйтеся з ШІ про сюжет. Він пам'ятає останні <strong>70 повідомлень</strong>.</li>
-                <li>Ви можете <strong>редагувати</strong> повідомлення ШІ (олівець при наведенні), якщо він помилився.</li>
-                <li>Текст історії в чаті виділяється <em>курсивом</em>.</li>
-                <li>Натисніть <strong>+</strong> біля повідомлення, щоб вставити його прямо в редактор.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h3 className="text-lg font-bold text-amber-400 mb-2 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5" /> 3. Банк Ідей
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
-                <li>Натисніть 💡 вгорі, щоб відкрити панель ідей.</li>
-                <li>Записуйте швидкі думки, плани або To-Do.</li>
-                <li>Можна відмічати виконані та редагувати текст (подвійний клік).</li>
-              </ul>
-            </section>
-
-            <section>
-              <h3 className="text-lg font-bold text-indigo-300 mb-2 flex items-center gap-2">
-                <Network className="w-5 h-5" /> 4. Граф Сюжету
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
-                <li>Візуалізація зв'язків між персонажами та локаціями.</li>
-                <li>Автоматично будується на основі аналізу тексту (в розробці).</li>
-              </ul>
-            </section>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div >
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
   );
 }

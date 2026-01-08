@@ -15,6 +15,7 @@ export async function PUT(
             data: {
                 ...(title !== undefined && { title }),
                 ...(content !== undefined && { content }),
+                ...(body.pov !== undefined && { pov: body.pov }),
             }
         });
 

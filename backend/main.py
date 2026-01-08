@@ -347,7 +347,8 @@ async def analyze_graph_update(request: AnalyzeGraphRequest):
 1. Виділи 1-3 ключові події.
 2. Для кожної події визнач:
    - "label": Назва події (3-6 слів).
-   - "details": Опис (1 речення).
+   - "details": Лаконічний, але "живий" опис ключової суті (1-2 речення). Згадай імена, важливі предмети чи емоції.
+   - "timeframe": Внутрішній час події (наприклад: "День 1, Ранок", "Через тиждень", "Рік 1050"). Якщо не вказано, логічно виведи з контексту.
    - "thread": Назва сюжетної лінії (використовуй існуючі або створи нову).
    - "importance": Наскільки це важливо для загального сюжету? (1 - деталь, 3 - звичайна подія, 5 - кульмінація/поворот).
    
@@ -355,9 +356,10 @@ async def analyze_graph_update(request: AnalyzeGraphRequest):
 {{
   "newNodes": [
     {{ 
-      "label": "...", 
-      "details": "...", 
-      "thread": "...", 
+      "label": "...",
+        "details": "...",
+         "timeframe": "...",
+      "thread": "...",
       "importance": 3 
     }}
   ]
@@ -378,6 +380,68 @@ async def analyze_graph_update(request: AnalyzeGraphRequest):
     )
     
     # Clean JSON
+    clean_json = response.strip()
+    if "```json" in clean_json:
+        clean_json = clean_json.split("```json")[1].split("```")[0].strip()
+    elif "```" in clean_json:
+        clean_json = clean_json.split("```")[1].split("```")[0].strip()
+        
+    return {"raw": response, "json_str": clean_json}
+
+class ConsistencyRequest(BaseModel):
+    chapter_text: str
+    lorebook_context: str = ""
+    graph_context: str = ""
+
+@app.post("/analyze-consistency")
+async def analyze_consistency(request: ConsistencyRequest):
+    prompt = f"""[INST]
+Ти — Редактор Цілісності (Continuity Editor). Твоє завдання — перевірити текст нового розділу на наявність логічних протиріч із "Біблією Світу" та попередніми подіями.
+
+[БІБЛІЯ СВІТУ (Сущності)]
+{request.lorebook_context}
+
+[ПОПЕРЕДНІ ПОДІЇ (Граф)]
+{request.graph_context}
+
+[ТЕКСТ НОВОГО РОЗДІЛУ]
+{request.chapter_text[:6000]}
+
+[ІНСТРУКЦІЯ]
+1. Уважно прочитай текст.
+2. Порівняй факти з Біблією Світу та Графом.
+3. Шукай:
+   - "Мертві" персонажі оживають?
+   - Зміна кольору очей/волосся/віку без пояснень?
+   - Порушення магічних правил?
+   - Герой знає те, чого не може знати (метагеймінг)?
+   - Герої телепортуються (порушення хронології)?
+
+4. Для кожної проблеми визнач рівень:
+   - "CRITICAL": Ламає сюжет (наприклад, ожив мрець).
+   - "WARNING": Підозріло, але можливо (наприклад, дивна поведінка).
+   - "NITPICK": Дрібниця (плутанина в одязі).
+
+5. Поверни JSON:
+{{
+  "issues": [
+    {{
+      "severity": "CRITICAL",
+      "description": "Персонаж Х помер у розділі 5, але тут він п'є каву.",
+      "quote": "Х зайшов у кімнату і замовив каву."
+    }}
+  ]
+}}
+Якщо проблем немає, поверни порожній масив "issues": [].
+Тільки JSON.
+[/INST]"""
+
+    response = generate_text(
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1000,
+        temperature=0.1 # Low temp for strict logic
+    )
+    
     clean_json = response.strip()
     if "```json" in clean_json:
         clean_json = clean_json.split("```json")[1].split("```")[0].strip()

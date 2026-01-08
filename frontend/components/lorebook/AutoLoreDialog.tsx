@@ -7,7 +7,7 @@ import { Loader2, Plus, X, Sparkles } from "lucide-react";
 
 interface SuggestedEntry {
     name: string;
-    type: 'CHARACTER' | 'LOCATION';
+    type: 'CHARACTER' | 'LOCATION' | 'GOD' | 'FACTION' | 'EVENT' | 'ITEM';
     description: string;
 }
 

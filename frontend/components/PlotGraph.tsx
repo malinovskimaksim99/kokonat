@@ -40,6 +40,38 @@ const generateThreadColor = (str: string) => {
     return `hsl(${h}, 70%, 60%)`; // Consistent HSL color
 };
 
+// 🧩 Custom Node Component
+const CustomNode = ({ data }: any) => {
+    return (
+        <div className="h-full w-full">
+            <div className="flex flex-col gap-1">
+                {data.timeframe && (
+                    <div className="text-[10px] text-amber-500 font-mono tracking-wider uppercase opacity-80 mb-0.5">
+                        ⏳ {data.timeframe}
+                    </div>
+                )}
+                <div className="font-bold text-sm text-slate-200">
+                    {data.label}
+                </div>
+                {data.details && (
+                    <div className="text-[10px] text-slate-400 mt-1 leading-snug line-clamp-3">
+                        {data.details}
+                    </div>
+                )}
+                {data.thread && (
+                    <div className="text-[9px] text-slate-500 mt-2 font-mono uppercase bg-black/20 p-1 rounded w-fit">
+                        # {data.thread}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const nodeTypes = {
+    default: CustomNode, // Override default type
+};
+
 export default function PlotGraph({ projectId, chapterContent = "" }: PlotGraphProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -435,6 +467,7 @@ export default function PlotGraph({ projectId, chapterContent = "" }: PlotGraphP
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                nodeTypes={nodeTypes}
                 onMoveEnd={(_, viewport) => {
                     setZoomLevel(viewport.zoom);
                     // Semantic Zoom Logic:
